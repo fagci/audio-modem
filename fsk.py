@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
+from sys import argv
 from zlib import compress, decompress
-
+from pathlib import Path
 from numpy import arange, argmax, array_split, int16, pi as PI, sin
-from numpy.core.multiarray import concatenate
+from numpy.core.multiarray import array, concatenate
 from numpy.fft import fft, fftfreq
-from scipy.io.wavfile import write
-
-message = 'Привет 😃'
+from scipy.io.wavfile import read, write
 
 SR = 44100
 F0 = 100
@@ -45,23 +44,18 @@ def decode(signal):
     return bytes(f2c(f) for f in freqs)
 
 
-def main():
-    print('Source message:', message)
-
-    print('Encoding...')
-    compressed = compress(message.encode())
-    encoded = encode(compressed)
-
-    print('Decoding...')
-    compressed = decode(encoded)
-    decoded = decompress(compressed).decode()
-
-    print('Decoded message:', decoded)
-
-    write('fsk.wav', SR, int16(encoded * 32767))
-
-    assert (decoded == message)
-
+def main(filename):
+    src = Path(filename)
+    if src.suffix == '.wav':
+        encoded = array(read(filename)[1], dtype=float) / 32767
+        compressed = decode(encoded)
+        decoded = decompress(compressed).decode()
+        print(decoded)
+    else:
+        message = src.read_bytes()
+        compressed = compress(message)
+        encoded = encode(compressed)
+        write('fsk.wav', SR, int16(encoded * 32767))
 
 if __name__ == '__main__':
-    main()
+    main(argv[1])
