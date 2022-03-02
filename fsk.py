@@ -51,4 +51,4 @@ decoded = ''.join(chr(int((f - F0) / FMUL)) for f in freqs)
 
 print('Decoded message:', decoded)
 
-write('bpsk.wav', SR, int16(modulated * 32767))
+write('fsk.wav', SR, int16(modulated * 32767))
