@@ -36,14 +36,22 @@ ct = 0
 
 print('Decoding...')
 
-# decode
+T = TPS/SR
+TPS_2 = TPS // 2
+
 while ct < len(modulated):
     carrier = modulated[ct:ct + TPS]
+    k = arange(TPS)
 
-    xf = linspace(0, SR / 2, TPS // 2)
-    mi = argmax(2 / TPS * abs(fft(carrier)[0:TPS // 2]))
+    f = k/T # 2 sides freq range
+    f = f[:TPS_2] # 1 side
 
-    f = xf[mi]
+    y = fft(carrier)
+    y = y[:TPS_2]
+
+    mi = argmax(y)
+
+    f = f[mi]
     print(f)
 
     decoded.append(chr(int((f - F0) / 4)))
