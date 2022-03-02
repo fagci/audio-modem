@@ -1,20 +1,23 @@
 #!/usr/bin/env python3
 
-from numpy import arange, argmax, int16, linspace, pi as PI, sin
+from numpy import arange, argmax, int16, pi as PI, sin, array_split
 from numpy.core.multiarray import concatenate
-from numpy.fft import fft
+from numpy.fft import fft, fftfreq
 from scipy.io.wavfile import write
 
-SR = 16000
-F0 = 1000
+SR = 44100
+F0 = 440
 
-SYM_RATE = 100
+SYM_RATE = 8 # TODO: make faster version work
 
 PI2 = 2 * PI
 
+FMUL = 16
+
 TPS = int(SR / SYM_RATE)
 
-message = 'a f k p u'
+message = '0Z'
+message = 'NumPy is the fundamental package for scientific computing in Python'
 
 print('Source message:', message)
 
@@ -22,42 +25,30 @@ MSG_LEN = len(message)
 
 t = arange(0, TPS)
 
-print(f'{TPS=}')
+print('Encoding...')
 
-freqs = [F0 + ord(c) * 4 for c in message]
+freqs = [F0 + ord(c) * FMUL for c in message]
 print(freqs)
 
-# encode message (thing its ok by analyzer)
-modulated = concatenate([sin(PI2 * t / SR * f) for f in freqs])
-
-decoded = []
-
-ct = 0
+modulated = concatenate([
+    sin(PI2 * t / SR * f)
+    for f in freqs
+])
 
 print('Decoding...')
 
-T = TPS/SR
-TPS_2 = TPS // 2
+T = modulated.size // TPS
+ff = fftfreq(TPS, 1/SR)
 
-while ct < len(modulated):
-    carrier = modulated[ct:ct + TPS]
-    k = arange(TPS)
+freqs = [
+    int(abs(ff[argmax(abs(fft(carrier)))]))
+    for carrier in array_split(modulated, T)
+]
 
-    f = k/T # 2 sides freq range
-    f = f[:TPS_2] # 1 side
+print(freqs)
 
-    y = fft(carrier)
-    y = y[:TPS_2]
+decoded = ''.join(chr(int((f - F0) / FMUL)) for f in freqs)
 
-    mi = argmax(y)
-
-    f = f[mi]
-    print(f)
-
-    decoded.append(chr(int((f - F0) / 4)))
-
-    ct += TPS
-
-print('Decoded:', ''.join(decoded))
+print('Decoded message:', decoded)
 
 write('bpsk.wav', SR, int16(modulated * 32767))
