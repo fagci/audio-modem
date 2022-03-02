@@ -7,7 +7,7 @@ from numpy.core.multiarray import concatenate
 from numpy.fft import fft, fftfreq
 from scipy.io.wavfile import write
 
-message = str(argmax.__doc__)
+message = 'Привет 😃'
 
 SR = 44100
 F0 = 100
