@@ -10,8 +10,8 @@ from numpy.fft import fft, fftfreq
 from scipy.io.wavfile import read, write
 
 SR = 48000
-F0 = 64
-SYM_RATE = 64
+SYM_RATE = 80
+F0 = SYM_RATE
 FDEV = SYM_RATE
 
 PI2 = 2 * PI
