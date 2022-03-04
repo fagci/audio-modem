@@ -9,9 +9,9 @@ from numpy.core.multiarray import array, concatenate
 from numpy.fft import fft, fftfreq
 from scipy.io.wavfile import read, write
 
-SR = 44100
-F0 = 200
-SYM_RATE = 50
+SR = 48000
+F0 = 64
+SYM_RATE = 64
 FDEV = SYM_RATE
 
 PI2 = 2 * PI
