@@ -8,15 +8,22 @@ from numpy.core.multiarray import array, concatenate
 from numpy.fft import fft, fftfreq
 from scipy.io.wavfile import read, write
 
-SR = 44100
-F0 = 100
+SR = 16000
+F0 = 450
 SYM_RATE = 10
-FDEV = 10
+FDEV = 10 # +2550 Hz
 
 PI2 = 2 * PI
 
-TPS = int(SR / SYM_RATE)
+FMAX = F0 + FDEV*255
 
+TPS = int(FMAX / SYM_RATE)
+
+# F = 3000
+# T = 1/3000 = 0.0003
+# tick = 1/16000 = 0.000006
+# tps = 450/10 = 45
+# tps = 3000/10 = 300
 
 def c2f(c):
     return F0 + c * FDEV
@@ -27,9 +34,8 @@ def f2c(f):
 
 
 def encode(msg):
-    t = arange(TPS)
-    parts = [sin(PI2 * t / SR * c2f(c)) for c in msg]
-    return concatenate(parts)
+    pi2tsr = PI2 * arange(TPS) / SR
+    return concatenate([sin(pi2tsr * c2f(c)) for c in msg])
 
 
 def decode(signal):
@@ -56,6 +62,7 @@ def main(filename):
         compressed = compress(message)
         encoded = encode(compressed)
         write('fsk.wav', SR, int16(encoded * 32767))
+
 
 if __name__ == '__main__':
     main(argv[1])
