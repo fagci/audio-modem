@@ -14,7 +14,7 @@ Then
 ./fsk.py fsk.wav
 ```
 
-and you will output of decoded file.
+and you will get output of decoded file.
 
 ## TODO
 
